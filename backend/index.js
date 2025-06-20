@@ -10,20 +10,20 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://clothingbrand-pi.vercel.app/"
+  "https://clothingbrand-pi.vercel.app"
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowed = allowedOrigins.find(o => origin?.startsWith(o));
-    if (!origin || allowed) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error("Not allowed by CORS"));
+      callback(new Error("Not allowed by CORS: " + origin));
     }
   },
   credentials: true,
 };
+
 
 app.use(cors(corsOptions)); // Enable CORS
 
