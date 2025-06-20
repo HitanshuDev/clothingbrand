@@ -1,9 +1,7 @@
-// backend/index.js
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
-import upload from "./upload.js";
 import nodemailer from "nodemailer";
 
 dotenv.config();
@@ -20,26 +18,23 @@ app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
       return callback(null, true);
-    } else {
-      return callback(new Error("Not allowed by CORS"));
     }
+    return callback(new Error("Not allowed by CORS"));
   },
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
-
 app.use(express.json());
 
-// Mongoose schema
 const itemSchema = new mongoose.Schema({
   name: String,
   type: String,
   description: String,
-  coverImage: String,
-  additionalImages: [String],
-}, { timestamps: true });
+  coverImage: { type: String, default: "" },
+  additionalImages: { type: [String], default: [] },
+});
 
 const Item = mongoose.model("Item", itemSchema);
 
@@ -91,22 +86,10 @@ app.post("/enquire", async (req, res) => {
   }
 });
 
-
-app.post("/upload", upload.array("images", 5), (req, res) => {
-  try {
-    console.log("FILES RECEIVED:", req.files);  // ← log incoming files
-    const imageUrls = req.files.map((file) => file.path);
-    res.json({ imageUrls });
-  } catch (error) {
-    console.error("Upload error:", error.message);
-    res.status(500).json({ error: error.message });
-  }
+// Optional root route
+app.get("/", (req, res) => {
+  res.send("<h1>This is backend</h1>");
 });
 
-app.get("/", (req,res) => {
-      res.send('<h1>This is backend</h1>');
-})
-
-// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Backend running at http://localhost:${PORT}`));

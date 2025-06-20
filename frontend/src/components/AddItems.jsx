@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 
-const API = process.env.REACT_APP_API_URI;
+const API = process.env.REACT_APP_API_URI?.replace(/\/+$/, "");
 
 export default function AddItem() {
   const [form, setForm] = useState({
@@ -9,7 +9,6 @@ export default function AddItem() {
     type: "",
     description: "",
   });
-  const [images, setImages] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,27 +19,14 @@ export default function AddItem() {
     e.preventDefault();
 
     try {
-      const formData = new FormData();
-      images.forEach((file) => formData.append("images", file));
-
-      const uploadRes = await axios.post(`${API}/upload`, formData, {
-        headers: {
-            "Content-Type": "multipart/form-data",
-        },
-        });
-      const urls = uploadRes.data.imageUrls;
-
-      const payload = {
+      await axios.post(`${API}/items`, {
         ...form,
-        coverImage: urls[0],
-        additionalImages: urls.slice(1),
-      };
+        coverImage: "",           // empty string since we're not uploading
+        additionalImages: [],
+      });
 
-      await axios.post(`${API}/items`, payload);
       alert("Item successfully added");
-
       setForm({ name: "", type: "", description: "" });
-      setImages([]);
     } catch (err) {
       alert("Error: " + err.message);
     }
@@ -62,17 +48,6 @@ export default function AddItem() {
             />
           </div>
         ))}
-
-        <div>
-          <label className="block mb-1">Upload Images</label>
-          <input
-            type="file"
-            multiple
-            onChange={(e) => setImages(Array.from(e.target.files))}
-            className="block w-full"
-            required
-          />
-        </div>
 
         <button className="bg-blue-600 text-white px-4 py-2 rounded">
           Submit

@@ -1,19 +1,14 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import Modal from "react-modal";
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
 
-const API = process.env.REACT_APP_API_URI;
+const API = process.env.REACT_APP_API_URI?.replace(/\/+$/, "");
 
+Modal.setAppElement("#root");
 
 export default function ViewItems() {
   const [items, setItems] = useState([]);
   const [selected, setSelected] = useState(null);
-
-  useEffect(() => {
-    Modal.setAppElement("#root");
-  }, []);
 
   useEffect(() => {
     axios.get(`${API}/items`).then((res) => {
@@ -41,15 +36,11 @@ export default function ViewItems() {
         {items.map((item) => (
           <div
             key={item._id}
-            className="border rounded shadow cursor-pointer"
+            className="border rounded shadow cursor-pointer p-4"
             onClick={() => setSelected(item)}
           >
-            <img
-              src={item.coverImage}
-              alt={item.name}
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-2 text-center font-medium">{item.name}</div>
+            <div className="text-center font-medium text-lg">{item.name}</div>
+            <p className="text-sm text-gray-500 text-center">{item.type}</p>
           </div>
         ))}
       </div>
@@ -71,17 +62,6 @@ export default function ViewItems() {
             <h2 className="text-2xl font-bold mb-2">{selected.name}</h2>
             <p className="text-gray-700 mb-2">{selected.type}</p>
             <p className="text-gray-600 mb-4">{selected.description}</p>
-
-            <Swiper spaceBetween={10} slidesPerView={1}>
-            {[selected.coverImage, ...(selected.additionalImages || [])].map(
-                (url, idx) => (
-                <SwiperSlide key={idx}>
-                    <img src={url} alt={`Slide ${idx}`} className="w-full h-64 object-cover" />
-                </SwiperSlide>
-                )
-            )}
-            </Swiper>
-
 
             <button
               onClick={handleEnquire}
