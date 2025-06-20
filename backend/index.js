@@ -1,0 +1,82 @@
+// backend/index.js
+import express from "express";
+import mongoose from "mongoose";
+import cors from "cors";
+import dotenv from "dotenv";
+import upload from "./upload.js";
+import nodemailer from "nodemailer";
+
+dotenv.config();
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// Mongoose schema
+const itemSchema = new mongoose.Schema({
+  name: String,
+  type: String,
+  description: String,
+  coverImage: String,
+  additionalImages: [String],
+}, { timestamps: true });
+
+const Item = mongoose.model("Item", itemSchema);
+
+// MongoDB Connection
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => console.log("✅ MongoDB connected"))
+  .catch(err => console.error("❌ MongoDB error:", err));
+
+// Routes
+app.get("/items", async (req, res) => {
+  const items = await Item.find().sort({ createdAt: -1 });
+  res.json(items);
+});
+
+app.post("/items", async (req, res) => {
+  try {
+    await new Item(req.body).save();
+    res.status(201).json({ message: "Item successfully added" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.post("/enquire", async (req, res) => {
+  const { name, type, description } = req.body;
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_FROM,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_FROM,
+    to: "hitanshuthegreat212003@gmail.com", 
+    subject: `Enquiry about: ${name}`,
+    text: `Type: ${type}\nDescription: ${description}`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({ message: "Email sent!" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+app.post("/upload", upload.array("images", 5), (req, res) => {
+  const imageUrls = req.files.map((file) => file.path);
+  res.json({ imageUrls });
+});
+
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Backend running at http://localhost:${PORT}`));
