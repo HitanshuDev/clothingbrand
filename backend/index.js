@@ -11,19 +11,22 @@ const app = express();
 const allowedOrigins = [
   "http://localhost:3000",
   "https://clothingbrand-so97.vercel.app",
-  "https://clothingbrand-so97-55ix1nvp9-hitanshudevs-projects.vercel.app"
+  "https://clothingbrand-so97-55ix1nvp9-hitanshudevs-projects.vercel.app", // for preview deployments
 ];
 
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
-      return callback(null, true);
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
     }
-    return callback(new Error("Not allowed by CORS"));
   },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
-  methods: ["GET", "POST", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
 }));
 
 app.use(express.json());
@@ -90,6 +93,9 @@ app.post("/enquire", async (req, res) => {
 app.get("/", (req, res) => {
   res.send("<h1>This is backend</h1>");
 });
+
+// app.options("*", cors());
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Backend running at http://localhost:${PORT}`));
