@@ -4,6 +4,8 @@ import Modal from "react-modal";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 
+const API = process.env.REACT_APP_API_URI;
+
 Modal.setAppElement("#root");
 
 export default function ViewItems() {
@@ -11,14 +13,14 @@ export default function ViewItems() {
   const [selected, setSelected] = useState(null);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/items").then((res) => {
+    axios.get(`${API}/items`).then((res) => {
       setItems(res.data);
     });
   }, []);
 
   const handleEnquire = async () => {
     try {
-      await axios.post("http://localhost:5000/enquire", {
+      await axios.post(`${API}/enquire`, {
         name: selected.name,
         type: selected.type,
         description: selected.description,

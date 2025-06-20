@@ -1,6 +1,8 @@
 import { useState } from "react";
 import axios from "axios";
 
+const API = process.env.REACT_APP_API_URI;
+
 export default function AddItem() {
   const [form, setForm] = useState({
     name: "",
@@ -21,7 +23,11 @@ export default function AddItem() {
       const formData = new FormData();
       images.forEach((file) => formData.append("images", file));
 
-      const uploadRes = await axios.post("http://localhost:5000/upload", formData);
+      const uploadRes = await axios.post(`${API}/upload`, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+        });
       const urls = uploadRes.data.imageUrls;
 
       const payload = {
@@ -30,7 +36,7 @@ export default function AddItem() {
         additionalImages: urls.slice(1),
       };
 
-      await axios.post("http://localhost:5000/items", payload);
+      await axios.post(`${API}/items`, payload);
       alert("Item successfully added");
 
       setForm({ name: "", type: "", description: "" });
