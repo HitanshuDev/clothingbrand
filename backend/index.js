@@ -9,25 +9,22 @@ dotenv.config();
 const app = express();
 
 const allowedOrigins = [
-  "http://localhost:3000",
-  "https://clothingbrand-so97.vercel.app",
-  "https://clothingbrand-so97-55ix1nvp9-hitanshudevs-projects.vercel.app", // for preview deployments
+  "http://localhost:3000", // local development
+  "https://clothingbrand-so97.vercel.app", // production or preview URL
 ];
 
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin) || origin.endsWith(".vercel.app")) {
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
     }
   },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"],
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
-}));
+  credentials: true, // allow cookies if needed
+};
+
+app.use(cors(corsOptions)); // Enable CORS
 
 app.use(express.json());
 
@@ -37,7 +34,8 @@ const itemSchema = new mongoose.Schema({
   description: String,
   coverImage: { type: String, default: "" },
   additionalImages: { type: [String], default: [] },
-});
+}, { timestamps: true }); // 👈 Add this
+
 
 const Item = mongoose.model("Item", itemSchema);
 
@@ -50,18 +48,22 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // Routes
 app.get("/items", async (req, res) => {
-  const items = await Item.find().sort({ createdAt: -1 });
+  const items = await Item.find();
   res.json(items);
 });
 
 app.post("/items", async (req, res) => {
   try {
+    console.log("Received item:", req.body); // 👈 print body
     await new Item(req.body).save();
     res.status(201).json({ message: "Item successfully added" });
   } catch (error) {
+    console.error("❌ Error while saving item:", error); // 👈 print error
     res.status(400).json({ error: error.message });
   }
 });
+
+
 
 app.post("/enquire", async (req, res) => {
   const { name, type, description } = req.body;
@@ -98,4 +100,6 @@ app.get("/", (req, res) => {
 
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Backend running at http://localhost:${PORT}`));
+app.listen(PORT, "0.0.0.0", () =>
+  console.log(`🚀 Backend running on port ${PORT}`)
+);
