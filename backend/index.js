@@ -9,19 +9,22 @@ dotenv.config();
 const app = express();
 
 const allowedOrigins = [
-  "http://localhost:3000", // local development
-  "https://clothingbrand-so97.vercel.app", // production or preview URL
+  "http://localhost:3000",
+  "https://clothingbrand-so97.vercel.app",
+  "https://clothingbrand-so97.vercel.app/", // safe to include both with and without trailing slash
+  "https://clothingbrand-so97-*.vercel.app" // preview deployments (optional wildcard)
 ];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    const allowed = allowedOrigins.find(o => origin?.startsWith(o));
+    if (!origin || allowed) {
       callback(null, true);
     } else {
       callback(new Error("Not allowed by CORS"));
     }
   },
-  credentials: true, // allow cookies if needed
+  credentials: true,
 };
 
 app.use(cors(corsOptions)); // Enable CORS
