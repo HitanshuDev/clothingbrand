@@ -6,11 +6,14 @@ import "swiper/css";
 
 const API = process.env.REACT_APP_API_URI;
 
-Modal.setAppElement("#root");
 
 export default function ViewItems() {
   const [items, setItems] = useState([]);
   const [selected, setSelected] = useState(null);
+
+  useEffect(() => {
+    Modal.setAppElement("#root");
+  }, []);
 
   useEffect(() => {
     axios.get(`${API}/items`).then((res) => {
