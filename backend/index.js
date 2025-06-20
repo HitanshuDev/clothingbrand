@@ -11,13 +11,11 @@ dotenv.config();
 const app = express();
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://your-frontend.vercel.app",  // Replace with your deployed frontend URL
-];
-
+  "https://clothingbrand-so97.vercel.app/", 
+]
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps, curl, Postman)
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
