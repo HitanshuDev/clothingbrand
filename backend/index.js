@@ -10,9 +10,7 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://clothingbrand-so97.vercel.app",
-  "https://clothingbrand-so97.vercel.app/", // safe to include both with and without trailing slash
-  "https://clothingbrand-so97-*.vercel.app" // preview deployments (optional wildcard)
+  "https://clothingbrand-pi.vercel.app/"
 ];
 
 const corsOptions = {
