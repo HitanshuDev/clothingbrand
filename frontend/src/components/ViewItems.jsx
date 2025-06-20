@@ -70,17 +70,13 @@ export default function ViewItems() {
             <p className="text-gray-600 mb-4">{selected.description}</p>
 
             <Swiper spaceBetween={10} slidesPerView={1}>
-              {[selected.coverImage, ...selected.additionalImages].map(
-                (url, idx) => (
-                  <SwiperSlide key={idx}>
-                    <img
-                      src={url}
-                      alt={`Slide ${idx}`}
-                      className="w-full h-64 object-cover"
-                    />
-                  </SwiperSlide>
-                )
-              )}
+                {[selected.coverImage, ...selected.additionalImages].map(
+                    (url, idx) => (
+                    <SwiperSlide key={idx}>
+                        <img src={url} alt={`Slide ${idx}`} className="w-full h-64 object-cover" />
+                    </SwiperSlide>
+                    )
+                )}
             </Swiper>
 
             <button
